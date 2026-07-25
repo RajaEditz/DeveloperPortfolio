@@ -1,0 +1,30 @@
+# Task List - Raja Mohamed Portfolio Website
+
+- [x] Project Setup & Core Configuration
+  - [x] Initialize Vite + React project
+  - [x] Install dependencies (Tailwind CSS, Framer Motion, Lucide React, Canvas Confetti)
+  - [x] Configure Tailwind CSS & global styles
+  - [x] Setup base file structure and index.html (SEO & OG tags)
+- [x] Base Layout & Global Elements
+  - [x] Implement `LoadingScreen.jsx` & `ThemeToggle.jsx`
+  - [x] Create `CustomCursor.jsx` & `ParticleBg.jsx`
+  - [x] Set up layout skeleton with state management for theme/cursor
+  - [x] Build sticky responsive `Navbar.jsx` & `Footer.jsx`
+- [x] Portfolio Pages & Sections
+  - [x] `Hero.jsx` section with typing effects, interactive SVG, and resume download
+  - [x] `About.jsx` biography, highlight cards, and timeline education
+  - [x] `Skills.jsx` categories and animated progress bars
+  - [x] `Projects.jsx` filtering, real-time search, detail modals
+  - [x] `Experience.jsx` timeline for internships, projects, learning journey
+  - [x] `Certificates.jsx` grid with filters, credentials, and search
+  - [x] `Publications.jsx` research publication cards with citation copier
+  - [x] `Freelancing.jsx` service cards, work process diagram, and CTAs
+  - [x] `Contact.jsx` form validation, EmailJS stub, Google Maps link, and success confetti
+- [x] Assembly & Polish
+  - [x] Connect all sections in `App.jsx`
+  - [x] Ensure smooth scrolling and page-wide transitions
+  - [x] Mock files (generate a resume placeholder PDF, profile placeholder image)
+- [/] Verification & Build
+  - [ ] Verify responsiveness on desktop/mobile
+  - [ ] Check accessibility/WCAG contrast
+  - [ ] Run production build (`npm run build`)

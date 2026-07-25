@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  body {
+    @apply transition-colors duration-300 antialiased overflow-x-hidden;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-slate-100;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-blue-500/30 rounded-full hover:bg-blue-600/50 transition-all duration-300;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply backdrop-blur-md bg-white/70 border border-slate-200/50;
+  }
+  
+  .glass-card {
+    @apply backdrop-blur-lg bg-white/80 border border-slate-200/60 shadow-xl shadow-black/5 hover:shadow-2xl hover:shadow-blue-500/15 hover:border-blue-500/35 transition-all duration-300;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-blue-600 via-slate-900 to-blue-700 bg-clip-text text-transparent;
+  }
+}
+
+/* Hide scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Animated glow radial backgrounds */
+.radial-glow-blue {
+  background: radial-gradient(circle, rgba(77, 141, 243, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
+}
+.radial-glow-purple {
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, rgba(0, 0, 0, 0) 70%);
+}
+
+/* Timeline custom styling */
+.timeline-dot::before {
+  content: '';
+  @apply absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow-md;
+}
