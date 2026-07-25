@@ -1,4 +1,15 @@
-export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const getRawApiUrl = () => {
+  let url = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+  if (url.endsWith("/")) {
+    url = url.slice(0, -1);
+  }
+  if (!url.endsWith("/api")) {
+    url = `${url}/api`;
+  }
+  return url;
+};
+
+export const API_BASE = getRawApiUrl();
 
 /**
  * Gets HTTP request headers, adding JWT authentication if present.
