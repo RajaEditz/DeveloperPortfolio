@@ -66,6 +66,104 @@ const certificates = [
   }
 ];
 
+function CertificateCard({ cert }) {
+  const [activeImgIndex, setActiveImgIndex] = useState(0);
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.3 }}
+      key={cert.id}
+      className="glass-card rounded-2xl overflow-hidden border border-slate-300/30 dark:border-slate-800/40 flex flex-col h-full group"
+    >
+      {/* Certificate image banner */}
+      <div className="h-44 w-full relative overflow-hidden bg-slate-200 dark:bg-slate-900 border-b border-slate-350/10 dark:border-slate-800/20">
+        <img 
+          src={cert.image_urls && cert.image_urls.length > 0 ? cert.image_urls[activeImgIndex] : cert.image} 
+          alt={cert.title} 
+          className="w-full h-full object-cover transition-transform duration-500"
+          loading="lazy"
+        />
+        
+        {/* Navigation Arrows for Card */}
+        {cert.image_urls && cert.image_urls.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                setActiveImgIndex((prev) => (prev === 0 ? cert.image_urls.length - 1 : prev - 1));
+              }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-slate-950/60 text-white hover:bg-slate-950/80 transition-colors border border-white/10 opacity-0 group-hover:opacity-100 duration-300 font-bold text-xs z-10"
+            >
+              &larr;
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                setActiveImgIndex((prev) => (prev === cert.image_urls.length - 1 ? 0 : prev + 1));
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-slate-950/60 text-white hover:bg-slate-950/80 transition-colors border border-white/10 opacity-0 group-hover:opacity-100 duration-300 font-bold text-xs z-10"
+            >
+              &rarr;
+            </button>
+
+            {/* Indicator Dots */}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 bg-slate-950/50 px-2 py-1 rounded-full border border-white/10 backdrop-blur-md opacity-0 group-hover:opacity-100 duration-300 z-10">
+              {cert.image_urls.map((_, idx) => (
+                <div
+                  key={idx}
+                  className={`w-1 h-1 rounded-full transition-all ${
+                    idx === activeImgIndex ? "bg-white scale-125" : "bg-white/40"
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+
+        <div className="absolute top-3 left-3">
+          <span className="px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-slate-950/70 border border-white/10 text-white backdrop-blur-md">
+            {cert.category}
+          </span>
+        </div>
+      </div>
+
+      {/* Card Content */}
+      <div className="p-5 flex-1 flex flex-col justify-between">
+        <div>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1.5 mb-1.5">
+            <Award size={14} className="text-blue-500 animate-pulse-slow" /> {cert.organization}
+          </h3>
+          <h4 className="text-sm font-extrabold text-slate-850 dark:text-white leading-snug mb-3">
+            {cert.title}
+          </h4>
+        </div>
+
+        <div className="pt-3 border-t border-slate-300/20 dark:border-slate-800/20 flex items-center justify-between gap-4 select-none">
+          <span className="text-[10px] font-semibold text-slate-450 dark:text-slate-500">
+            Issued: {cert.issueDate}
+          </span>
+          <div className="flex gap-2">
+            <a
+              href={cert.image_urls && cert.image_urls.length > 0 ? cert.image_urls[activeImgIndex] : cert.downloadLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-lg border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-350 hover:border-blue-500 dark:hover:border-blue-500 hover:text-blue-500 dark:hover:text-blue-450 transition-all flex items-center gap-1 text-[10px] font-semibold"
+              aria-label={`View certificate for ${cert.title}`}
+            >
+              View
+            </a>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function Certificates() {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -85,6 +183,7 @@ export default function Certificates() {
             credentialLink: c.credential_url || "#",
             downloadLink: c.image_url || "#",
             image: c.image_url || "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=400&auto=format&fit=crop",
+            image_urls: c.image_urls || (c.image_url ? [c.image_url] : ["https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=400&auto=format&fit=crop"]),
           }));
           setCertList(mapped);
         }
@@ -128,7 +227,7 @@ export default function Certificates() {
                 className={`px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all duration-300 ${
                   selectedFilter === filter
                     ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md shadow-blue-500/10"
-                    : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-455 hover:bg-slate-50 dark:hover:bg-slate-850"
+                    : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-655 dark:text-slate-455 hover:bg-slate-50 dark:hover:bg-slate-850"
                 }`}
               >
                 {filter === "all" ? "All Credentials" : filter}
@@ -158,58 +257,7 @@ export default function Certificates() {
         >
           <AnimatePresence mode="popLayout">
             {filteredCertificates.map((cert) => (
-              <motion.div
-                layout
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.3 }}
-                key={cert.id}
-                className="glass-card rounded-2xl overflow-hidden border border-slate-300/30 dark:border-slate-800/40 flex flex-col h-full group"
-              >
-                {/* Certificate image banner */}
-                <div className="h-44 w-full relative overflow-hidden bg-slate-200 dark:bg-slate-900 border-b border-slate-350/10 dark:border-slate-800/20">
-                  <img 
-                    src={cert.image} 
-                    alt={cert.title} 
-                    className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                  <div className="absolute top-3 left-3">
-                    <span className="px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-slate-950/70 border border-white/10 text-white backdrop-blur-md">
-                      {cert.category}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Card Content */}
-                <div className="p-5 flex-1 flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1.5 mb-1.5">
-                      <Award size={14} className="text-blue-500 animate-pulse-slow" /> {cert.organization}
-                    </h3>
-                    <h4 className="text-sm font-extrabold text-slate-850 dark:text-white leading-snug mb-3">
-                      {cert.title}
-                    </h4>
-                  </div>
-
-                  <div className="pt-3 border-t border-slate-300/20 dark:border-slate-800/20 flex items-center justify-between gap-4 select-none">
-                    <span className="text-[10px] font-semibold text-slate-450 dark:text-slate-500">
-                      Issued: {cert.issueDate}
-                    </span>
-                    <div className="flex gap-2">
-                      <a
-                        href={cert.downloadLink}
-                        download={`${cert.title.replace(/\s+/g, '_')}_Certificate.pdf`}
-                        className="p-2 rounded-lg border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-350 hover:border-blue-500 dark:hover:border-blue-500 hover:text-blue-500 dark:hover:text-blue-450 transition-all flex items-center gap-1 text-[10px] font-semibold"
-                        aria-label={`Download certificate for ${cert.title}`}
-                      >
-                        <Download size={12} /> Download
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+              <CertificateCard key={cert.id} cert={cert} />
             ))}
           </AnimatePresence>
         </motion.div>

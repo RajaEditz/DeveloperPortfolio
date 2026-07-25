@@ -146,6 +146,11 @@ export default function Projects() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProject, setSelectedProject] = useState(null);
   const [projectList, setProjectList] = useState(projects);
+  const [activeImgIndex, setActiveImgIndex] = useState(0);
+
+  useEffect(() => {
+    setActiveImgIndex(0);
+  }, [selectedProject]);
 
   useEffect(() => {
     fetch(`${API_BASE}/projects`)
@@ -162,6 +167,7 @@ export default function Projects() {
             githubLink: p.github_url || "#",
             liveLink: p.live_url || "#",
             image: p.image_url || "https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=600&auto=format&fit=crop",
+            image_urls: p.image_urls || (p.image_url ? [p.image_url] : ["https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=600&auto=format&fit=crop"]),
           }));
           setProjectList(mapped);
         }
@@ -345,21 +351,65 @@ export default function Projects() {
               transition={{ type: "spring", stiffness: 280, damping: 25 }}
               className="bg-white dark:bg-slate-900 border border-slate-300/30 dark:border-slate-800/80 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden shadow-2xl relative flex flex-col text-left"
             >
-              {/* Modal Image Header */}
-              <div className="h-56 w-full relative">
-                <img 
-                  src={selectedProject.image} 
-                  alt={selectedProject.title} 
-                  className="w-full h-full object-cover"
-                />
+              {/* Modal Image Header with Gallery Slider */}
+              <div className="h-56 w-full relative overflow-hidden bg-slate-950">
+                {selectedProject.image_urls && selectedProject.image_urls.length > 0 ? (
+                  <>
+                    <img 
+                      src={selectedProject.image_urls[activeImgIndex]} 
+                      alt={`${selectedProject.title} ${activeImgIndex + 1}`} 
+                      className="w-full h-full object-cover transition-all duration-300"
+                    />
+                    
+                    {/* Navigation Arrows */}
+                    {selectedProject.image_urls.length > 1 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setActiveImgIndex((prev) => (prev === 0 ? selectedProject.image_urls.length - 1 : prev - 1))}
+                          className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-950/60 text-white hover:bg-slate-950/85 transition-colors border border-white/10 z-10 font-bold"
+                        >
+                          &larr;
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setActiveImgIndex((prev) => (prev === selectedProject.image_urls.length - 1 ? 0 : prev + 1))}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-950/60 text-white hover:bg-slate-950/85 transition-colors border border-white/10 z-10 font-bold"
+                        >
+                          &rarr;
+                        </button>
+
+                        {/* Dots Indicators */}
+                        <div className="absolute bottom-4 right-4 flex gap-1.5 bg-slate-950/50 px-3 py-1.5 rounded-full border border-white/10 backdrop-blur-md z-10">
+                          {selectedProject.image_urls.map((_, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => setActiveImgIndex(idx)}
+                              className={`w-1.5 h-1.5 rounded-full transition-all ${
+                                idx === activeImgIndex ? "bg-white scale-125" : "bg-white/40"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <img 
+                    src={selectedProject.image} 
+                    alt={selectedProject.title} 
+                    className="w-full h-full object-cover"
+                  />
+                )}
                 <button
                   onClick={() => setSelectedProject(null)}
-                  className="absolute top-4 right-4 p-2 rounded-xl bg-slate-950/65 text-white hover:bg-slate-950/80 transition-colors border border-white/10"
+                  className="absolute top-4 right-4 p-2 rounded-xl bg-slate-950/65 text-white hover:bg-slate-950/80 transition-colors border border-white/10 z-10"
                   aria-label="Close details"
                 >
                   <X size={18} />
                 </button>
-                <div className="absolute bottom-4 left-4">
+                <div className="absolute bottom-4 left-4 z-10">
                   <h3 className="text-lg md:text-xl font-extrabold text-white bg-slate-950/65 px-4 py-1.5 rounded-xl border border-white/15 backdrop-blur-md">
                     {selectedProject.title}
                   </h3>

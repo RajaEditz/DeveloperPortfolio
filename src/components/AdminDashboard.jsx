@@ -94,6 +94,7 @@ export default function AdminDashboard({ onLogout }) {
     live_url: "",
     featured: false,
     image_url: "",
+    image_urls: [],
   });
 
   const [experienceFields, setExperienceFields] = useState({
@@ -112,6 +113,7 @@ export default function AdminDashboard({ onLogout }) {
     issue_date: "",
     credential_url: "",
     image_url: "",
+    image_urls: [],
   });
 
   const [skillFields, setSkillFields] = useState({
@@ -141,8 +143,8 @@ export default function AdminDashboard({ onLogout }) {
   });
 
   // Upload File States
-  const [projectImage, setProjectImage] = useState(null);
-  const [certificateImage, setCertificateImage] = useState(null);
+  const [projectImages, setProjectImages] = useState([]);
+  const [certificateImages, setCertificateImages] = useState([]);
   const [resumeFile, setResumeFile] = useState(null);
   // Preview URL for selected CV image
   const [cvPreviewUrl, setCvPreviewUrl] = useState(null);
@@ -230,8 +232,8 @@ export default function AdminDashboard({ onLogout }) {
   const openAddModal = (type) => {
     setModalType(type);
     setEditItem(null);
-    setProjectImage(null);
-    setCertificateImage(null);
+    setProjectImages([]);
+    setCertificateImages([]);
 
     // Reset forms
     if (type === "project") {
@@ -243,6 +245,7 @@ export default function AdminDashboard({ onLogout }) {
         live_url: "",
         featured: false,
         image_url: "",
+        image_urls: [],
       });
     } else if (type === "experience") {
       setExperienceFields({
@@ -261,6 +264,7 @@ export default function AdminDashboard({ onLogout }) {
         issue_date: "",
         credential_url: "",
         image_url: "",
+        image_urls: [],
       });
     } else if (type === "skill") {
       setSkillFields({
@@ -285,8 +289,8 @@ export default function AdminDashboard({ onLogout }) {
   const openEditModal = (type, item) => {
     setModalType(type);
     setEditItem(item);
-    setProjectImage(null);
-    setCertificateImage(null);
+    setProjectImages([]);
+    setCertificateImages([]);
 
     if (type === "project") {
       setProjectFields({
@@ -297,6 +301,7 @@ export default function AdminDashboard({ onLogout }) {
         live_url: item.live_url || "",
         featured: item.featured || false,
         image_url: item.image_url || "",
+        image_urls: item.image_urls || (item.image_url ? [item.image_url] : []),
       });
     } else if (type === "experience") {
       setExperienceFields({
@@ -315,6 +320,7 @@ export default function AdminDashboard({ onLogout }) {
         issue_date: formatDateForInput(item.issue_date),
         credential_url: item.credential_url || "",
         image_url: item.image_url || "",
+        image_urls: item.image_urls || (item.image_url ? [item.image_url] : []),
       });
     } else if (type === "skill") {
       setSkillFields({
@@ -350,10 +356,12 @@ export default function AdminDashboard({ onLogout }) {
         formData.append("github_url", projectFields.github_url);
         formData.append("live_url", projectFields.live_url);
         formData.append("featured", projectFields.featured);
-        formData.append("image_url", projectFields.image_url);
+        formData.append("image_urls", JSON.stringify(projectFields.image_urls || []));
 
-        if (projectImage) {
-          formData.append("image", projectImage);
+        if (projectImages && projectImages.length > 0) {
+          projectImages.forEach((img) => {
+            formData.append("images", img);
+          });
         }
 
         if (editItem) {
@@ -367,10 +375,12 @@ export default function AdminDashboard({ onLogout }) {
         formData.append("issuer", certificateFields.issuer);
         formData.append("issue_date", certificateFields.issue_date);
         formData.append("credential_url", certificateFields.credential_url);
-        formData.append("image_url", certificateFields.image_url);
+        formData.append("image_urls", JSON.stringify(certificateFields.image_urls || []));
 
-        if (certificateImage) {
-          formData.append("image", certificateImage);
+        if (certificateImages && certificateImages.length > 0) {
+          certificateImages.forEach((img) => {
+            formData.append("images", img);
+          });
         }
 
         if (editItem) {
@@ -1334,8 +1344,80 @@ export default function AdminDashboard({ onLogout }) {
                       />
                       <label htmlFor="featured" className="text-[10px] font-bold uppercase tracking-wider text-slate-505">Featured Project</label>
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-2.5">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Project Photos (Upload 10+ photos)</label>
+                      
+                      {/* Existing Images Grid */}
+                      {projectFields.image_urls && projectFields.image_urls.length > 0 && (
+                        <div className="space-y-1.5">
+                          <span className="text-[9px] font-semibold text-slate-455 uppercase">Existing Photos:</span>
+                          <div className="grid grid-cols-4 gap-2 border border-slate-150 p-2 rounded-xl bg-slate-50/50">
+                            {projectFields.image_urls.map((url, index) => (
+                              <div key={index} className="relative aspect-video rounded-lg overflow-hidden border border-slate-200 group">
+                                <img src={url} alt={`Project ${index}`} className="w-full h-full object-cover" />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = projectFields.image_urls.filter((_, i) => i !== index);
+                                    setProjectFields({ ...projectFields, image_urls: updated });
+                                  }}
+                                  className="absolute top-1 right-1 p-1 bg-red-500/80 hover:bg-red-600 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <X size={10} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
+                      {/* Selected Files Preview Grid */}
+                      {projectImages && projectImages.length > 0 && (
+                        <div className="space-y-1.5">
+                          <span className="text-[9px] font-semibold text-blue-500 uppercase">New Selected Photos:</span>
+                          <div className="grid grid-cols-4 gap-2 border border-blue-100 p-2 rounded-xl bg-blue-50/10">
+                            {projectImages.map((file, index) => {
+                              const previewUrl = URL.createObjectURL(file);
+                              return (
+                                <div key={index} className="relative aspect-video rounded-lg overflow-hidden border border-blue-200 group">
+                                  <img src={previewUrl} alt={`New upload ${index}`} className="w-full h-full object-cover" />
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const updated = projectImages.filter((_, i) => i !== index);
+                                      setProjectImages(updated);
+                                    }}
+                                    className="absolute top-1 right-1 p-1 bg-slate-800/80 hover:bg-slate-900 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
+                                    <X size={10} />
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* File Select Label */}
+                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-blue-400 p-4 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                        <Upload size={20} className="text-slate-400 mb-1" />
+                        <span className="text-[11px] font-semibold text-slate-650">Select New Photos</span>
+                        <span className="text-[9px] text-slate-450 mt-0.5">JPEG, PNG, WEBP (Multiple allowed)</span>
+                        <input
+                          type="file"
+                          multiple
+                          className="hidden"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const selectedFiles = Array.from(e.target.files || []);
+                            if (projectImages.length + selectedFiles.length > 15) {
+                              alert("You can upload a maximum of 15 photos.");
+                              return;
+                            }
+                            setProjectImages([...projectImages, ...selectedFiles]);
+                          }}
+                        />
+                      </label>
                     </div>
                   </>
                 )}
@@ -1463,22 +1545,80 @@ export default function AdminDashboard({ onLogout }) {
                         />
                       </div>
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-505">Certificate Image / PDF</label>
-                      <div className="flex items-center gap-3">
-                        <label className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 cursor-pointer font-semibold transition-all">
-                          <Upload size={14} /> {certificateImage ? certificateImage.name : "Select File"}
-                          <input
-                            type="file"
-                            className="hidden"
-                            accept="image/*,application/pdf"
-                            onChange={(e) => setCertificateImage(e.target.files[0])}
-                          />
-                        </label>
-                        {!certificateImage && certificateFields.image_url && (
-                          <span className="text-[10px] text-slate-500 truncate max-w-xs">Existing: {certificateFields.image_url}</span>
-                        )}
-                      </div>
+                    <div className="space-y-2.5">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-505 block">Certificate Images (Upload 10+ photos)</label>
+                      
+                      {/* Existing Images Grid */}
+                      {certificateFields.image_urls && certificateFields.image_urls.length > 0 && (
+                        <div className="space-y-1.5">
+                          <span className="text-[9px] font-semibold text-slate-455 uppercase">Existing Photos:</span>
+                          <div className="grid grid-cols-4 gap-2 border border-slate-150 p-2 rounded-xl bg-slate-50/50">
+                            {certificateFields.image_urls.map((url, index) => (
+                              <div key={index} className="relative aspect-video rounded-lg overflow-hidden border border-slate-200 group">
+                                <img src={url} alt={`Certificate ${index}`} className="w-full h-full object-cover" />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = certificateFields.image_urls.filter((_, i) => i !== index);
+                                    setCertificateFields({ ...certificateFields, image_urls: updated });
+                                  }}
+                                  className="absolute top-1 right-1 p-1 bg-red-500/80 hover:bg-red-655 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <X size={10} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Selected Files Preview Grid */}
+                      {certificateImages && certificateImages.length > 0 && (
+                        <div className="space-y-1.5">
+                          <span className="text-[9px] font-semibold text-blue-500 uppercase">New Selected Photos:</span>
+                          <div className="grid grid-cols-4 gap-2 border border-blue-100 p-2 rounded-xl bg-blue-50/10">
+                            {certificateImages.map((file, index) => {
+                              const previewUrl = URL.createObjectURL(file);
+                              return (
+                                <div key={index} className="relative aspect-video rounded-lg overflow-hidden border border-blue-200 group">
+                                  <img src={previewUrl} alt={`New upload ${index}`} className="w-full h-full object-cover" />
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const updated = certificateImages.filter((_, i) => i !== index);
+                                      setCertificateImages(updated);
+                                    }}
+                                    className="absolute top-1 right-1 p-1 bg-slate-800/80 hover:bg-slate-900 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
+                                    <X size={10} />
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* File Select Label */}
+                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-blue-400 p-4 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                        <Upload size={20} className="text-slate-400 mb-1" />
+                        <span className="text-[11px] font-semibold text-slate-650">Select New Photos</span>
+                        <span className="text-[9px] text-slate-450 mt-0.5">JPEG, PNG, WEBP (Multiple allowed)</span>
+                        <input
+                          type="file"
+                          multiple
+                          className="hidden"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const selectedFiles = Array.from(e.target.files || []);
+                            if (certificateImages.length + selectedFiles.length > 15) {
+                              alert("You can upload a maximum of 15 photos.");
+                              return;
+                            }
+                            setCertificateImages([...certificateImages, ...selectedFiles]);
+                          }}
+                        />
+                      </label>
                     </div>
                   </>
                 )}

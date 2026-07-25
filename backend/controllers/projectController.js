@@ -43,19 +43,32 @@ const createProject = async (req, res) => {
     const { title, description, technologies, github_url, live_url, featured } =
       req.body;
 
-    let imageUrl = req.body.image_url || "";
-
-    // Upload to Cloudinary if file exists in request
-    if (req.file) {
-      const uploadResult = await uploadToCloudinary(req.file.buffer, "projects");
-      imageUrl = uploadResult.secure_url;
+    let imageUrls = [];
+    if (req.body.image_urls) {
+      try {
+        imageUrls = typeof req.body.image_urls === "string" ? JSON.parse(req.body.image_urls) : req.body.image_urls;
+      } catch (e) {
+        console.error("Error parsing image_urls:", e);
+      }
     }
+
+    // Upload to Cloudinary if files exist in request
+    if (req.files && req.files.length > 0) {
+      const uploadPromises = req.files.map((file) =>
+        uploadToCloudinary(file.buffer, "projects")
+      );
+      const uploadResults = await Promise.all(uploadPromises);
+      const newUrls = uploadResults.map((r) => r.secure_url);
+      imageUrls = [...imageUrls, ...newUrls];
+    }
+
+    const imageUrl = imageUrls.length > 0 ? imageUrls[0] : "";
 
     const result = await pool.query(
       `
       INSERT INTO projects 
-      (title, description, technologies, github_url, live_url, image_url, featured, created_at, updated_at) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW()) 
+      (title, description, technologies, github_url, live_url, image_url, image_urls, featured, created_at, updated_at) 
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW()) 
       RETURNING *
       `,
       [
@@ -65,6 +78,7 @@ const createProject = async (req, res) => {
         github_url,
         live_url,
         imageUrl,
+        imageUrls,
         featured === "true" || featured === true,
       ]
     );
@@ -94,19 +108,34 @@ const updateProject = async (req, res) => {
       return res.status(404).json({ message: "Project not found" });
     }
 
-    let imageUrl = req.body.image_url || checkProject.rows[0].image_url;
-
-    // If new file is uploaded
-    if (req.file) {
-      const uploadResult = await uploadToCloudinary(req.file.buffer, "projects");
-      imageUrl = uploadResult.secure_url;
+    let imageUrls = [];
+    if (req.body.image_urls) {
+      try {
+        imageUrls = typeof req.body.image_urls === "string" ? JSON.parse(req.body.image_urls) : req.body.image_urls;
+      } catch (e) {
+        console.error("Error parsing image_urls:", e);
+      }
+    } else {
+      imageUrls = checkProject.rows[0].image_urls || (checkProject.rows[0].image_url ? [checkProject.rows[0].image_url] : []);
     }
+
+    // If new files are uploaded
+    if (req.files && req.files.length > 0) {
+      const uploadPromises = req.files.map((file) =>
+        uploadToCloudinary(file.buffer, "projects")
+      );
+      const uploadResults = await Promise.all(uploadPromises);
+      const newUrls = uploadResults.map((r) => r.secure_url);
+      imageUrls = [...imageUrls, ...newUrls];
+    }
+
+    const imageUrl = imageUrls.length > 0 ? imageUrls[0] : "";
 
     const result = await pool.query(
       `
       UPDATE projects 
-      SET title = $1, description = $2, technologies = $3, github_url = $4, live_url = $5, image_url = $6, featured = $7, updated_at = NOW() 
-      WHERE id = $8 
+      SET title = $1, description = $2, technologies = $3, github_url = $4, live_url = $5, image_url = $6, image_urls = $7, featured = $8, updated_at = NOW() 
+      WHERE id = $9 
       RETURNING *
       `,
       [
@@ -116,6 +145,7 @@ const updateProject = async (req, res) => {
         github_url,
         live_url,
         imageUrl,
+        imageUrls,
         featured === "true" || featured === true,
         id,
       ]

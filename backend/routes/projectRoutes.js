@@ -15,8 +15,8 @@ router.get("/", getProjects);
 router.get("/:id", getProjectById);
 
 // Protected routes (admin only)
-router.post("/", protect, upload.single("image"), createProject);
-router.put("/:id", protect, upload.single("image"), updateProject);
+router.post("/", protect, upload.array("images", 15), createProject);
+router.put("/:id", protect, upload.array("images", 15), updateProject);
 router.delete("/:id", protect, deleteProject);
 
 module.exports = router;

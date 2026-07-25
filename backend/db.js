@@ -106,6 +106,10 @@ pool.connect()
       await client.query(`
         ALTER TABLE contact_info 
         ADD COLUMN IF NOT EXISTS profile_photo TEXT;
+        ALTER TABLE projects 
+        ADD COLUMN IF NOT EXISTS image_urls TEXT[];
+        ALTER TABLE certificates 
+        ADD COLUMN IF NOT EXISTS image_urls TEXT[];
       `);
 
       // Seed default admin account if none exists
