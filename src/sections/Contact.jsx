@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, Download } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { API_BASE } from '../utils/api';
 
 export default function Contact() {
   const formRef = useRef();
@@ -23,7 +24,7 @@ export default function Contact() {
   });
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/contact")
+    fetch(`${API_BASE}/contact`)
       .then((res) => res.json())
       .then((data) => {
         if (data && data.email) {
@@ -69,7 +70,7 @@ export default function Contact() {
     setSubmitStatus('sending');
 
     try {
-      const response = await fetch("http://localhost:5000/api/messages", {
+      const response = await fetch(`${API_BASE}/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

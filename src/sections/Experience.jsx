@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Briefcase, Code, Cpu, Award } from 'lucide-react';
+import { API_BASE } from '../utils/api';
 
 const experiences = [
   {
@@ -61,7 +62,7 @@ export default function Experience() {
   const [expList, setExpList] = useState(experiences);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/experiences")
+    fetch(`${API_BASE}/experiences`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {

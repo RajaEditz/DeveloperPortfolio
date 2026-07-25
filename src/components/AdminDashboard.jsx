@@ -19,12 +19,12 @@ import {
   ChevronRight,
   Upload,
 } from "lucide-react";
-import { apiRequest } from "../utils/api";
+import { apiRequest, API_BASE } from "../utils/api";
 
 const uploadWithProgress = (endpoint, file, onProgress) => {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open("PUT", `http://localhost:5000/api${endpoint}`);
+    xhr.open("PUT", `${API_BASE}${endpoint}`);
 
     const token = localStorage.getItem("admin_token");
     if (token) {

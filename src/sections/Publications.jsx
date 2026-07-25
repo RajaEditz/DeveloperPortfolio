@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, FileText, Clipboard, Check, Calendar, Users, Bookmark } from 'lucide-react';
+import { API_BASE } from '../utils/api';
 
 export default function Publications() {
   const [copiedId, setCopiedId] = useState(null);
@@ -33,7 +34,7 @@ export default function Publications() {
   const [pubList, setPubList] = useState(publicationsList);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/publications")
+    fetch(`${API_BASE}/publications`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {

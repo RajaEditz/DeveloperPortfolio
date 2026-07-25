@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { GraduationCap, MapPin, Globe, Award, Briefcase, BookOpen } from 'lucide-react';
+import { API_BASE } from '../utils/api';
 
 export default function About() {
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/profile-photo")
+    fetch(`${API_BASE}/profile-photo`)
       .then((res) => res.json())
       .then((data) => {
         if (data && data.profile_photo) {

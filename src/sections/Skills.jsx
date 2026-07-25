@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Code, Server, Database, Settings, Cloud, Award } from 'lucide-react';
+import { API_BASE } from '../utils/api';
 
 const skillCategories = [
   {
@@ -75,7 +76,7 @@ export default function Skills() {
   const [categories, setCategories] = useState(skillCategories);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/skills")
+    fetch(`${API_BASE}/skills`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {

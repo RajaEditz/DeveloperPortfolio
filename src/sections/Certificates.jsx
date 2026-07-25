@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Award, Download, Search } from 'lucide-react';
+import { API_BASE } from '../utils/api';
 
 const certificates = [
   {
@@ -71,7 +72,7 @@ export default function Certificates() {
   const [certList, setCertList] = useState(certificates);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/certificates")
+    fetch(`${API_BASE}/certificates`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {

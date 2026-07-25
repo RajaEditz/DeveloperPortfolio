@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, ArrowRight, Download } from 'lucide-react';
+import { API_BASE } from '../utils/api';
 
 const Github = ({ size = 18, ...props }) => (
   <svg viewBox="0 0 24 24" width={size} height={size} stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -40,7 +41,7 @@ export default function Hero() {
   const [resumeUrl, setResumeUrl] = useState("/resume.pdf");
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/contact")
+    fetch(`${API_BASE}/contact`)
       .then((res) => res.json())
       .then((data) => {
         if (data && data.resume_url) {
