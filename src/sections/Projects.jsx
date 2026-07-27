@@ -154,6 +154,17 @@ export default function Projects() {
   }, [selectedProject]);
 
   useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setLightboxImg(null);
+        setSelectedProject(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  useEffect(() => {
     fetch(`${API_BASE}/projects`)
       .then((res) => res.json())
       .then((data) => {
@@ -355,65 +366,75 @@ export default function Projects() {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Image Header with Gallery Slider */}
-              <div className="aspect-video w-full relative overflow-hidden bg-slate-950">
-                {selectedProject.image_urls && selectedProject.image_urls.length > 0 ? (
-                  <>
+              <div className="w-full relative bg-slate-950 p-4 px-12 md:px-16 flex flex-col items-center justify-center">
+                {/* Image Wrapper (Fixed 16:9 Aspect Ratio, centered, no zoom/stretch) */}
+                <div className="w-full aspect-video relative rounded-xl overflow-hidden bg-slate-900 flex items-center justify-center">
+                  {selectedProject.image_urls && selectedProject.image_urls.length > 0 ? (
                     <img 
                       src={selectedProject.image_urls[activeImgIndex]} 
                       alt={`${selectedProject.title} ${activeImgIndex + 1}`} 
-                      className="w-full h-full object-cover transition-all duration-300 cursor-zoom-in hover:opacity-90"
+                      className="max-w-full max-h-full object-contain cursor-zoom-in hover:opacity-90 transition-all duration-300"
                       onClick={() => setLightboxImg(selectedProject.image_urls[activeImgIndex])}
                     />
-                    
-                    {/* Navigation Arrows */}
-                    {selectedProject.image_urls.length > 1 && (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => setActiveImgIndex((prev) => (prev === 0 ? selectedProject.image_urls.length - 1 : prev - 1))}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-950/60 text-white hover:bg-slate-950/85 transition-colors border border-white/10 z-10 font-bold"
-                        >
-                          &larr;
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setActiveImgIndex((prev) => (prev === selectedProject.image_urls.length - 1 ? 0 : prev + 1))}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-950/60 text-white hover:bg-slate-950/85 transition-colors border border-white/10 z-10 font-bold"
-                        >
-                          &rarr;
-                        </button>
+                  ) : (
+                    <img 
+                      src={selectedProject.modal_image || selectedProject.image} 
+                      alt={selectedProject.title} 
+                      className="max-w-full max-h-full object-contain cursor-zoom-in hover:opacity-90 transition-all duration-300"
+                      onClick={() => setLightboxImg(selectedProject.modal_image || selectedProject.image)}
+                    />
+                  )}
+                </div>
 
-                        {/* Dots Indicators */}
-                        <div className="absolute bottom-4 right-4 flex gap-1.5 bg-slate-950/50 px-3 py-1.5 rounded-full border border-white/10 backdrop-blur-md z-10">
-                          {selectedProject.image_urls.map((_, idx) => (
-                            <button
-                              key={idx}
-                              type="button"
-                              onClick={() => setActiveImgIndex(idx)}
-                              className={`w-1.5 h-1.5 rounded-full transition-all ${
-                                idx === activeImgIndex ? "bg-white scale-125" : "bg-white/40"
-                              }`}
-                            />
-                          ))}
-                        </div>
-                      </>
-                    )}
+                {/* Navigation Controls (Outside the image wrapper, inside the padded areas) */}
+                {selectedProject.image_urls && selectedProject.image_urls.length > 1 && (
+                  <>
+                    {/* Previous Image Button (Left side, vertically centered) */}
+                    <button
+                      type="button"
+                      onClick={() => setActiveImgIndex((prev) => (prev === 0 ? selectedProject.image_urls.length - 1 : prev - 1))}
+                      className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/60 text-white hover:bg-slate-900/85 transition-colors border border-white/10 z-10 font-bold cursor-pointer"
+                      aria-label="Previous image"
+                    >
+                      &larr;
+                    </button>
+
+                    {/* Next Image Button (Right side, vertically centered) */}
+                    <button
+                      type="button"
+                      onClick={() => setActiveImgIndex((prev) => (prev === selectedProject.image_urls.length - 1 ? 0 : prev + 1))}
+                      className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/60 text-white hover:bg-slate-900/85 transition-colors border border-white/10 z-10 font-bold cursor-pointer"
+                      aria-label="Next image"
+                    >
+                      &rarr;
+                    </button>
                   </>
-                ) : (
-                  <img 
-                    src={selectedProject.modal_image || selectedProject.image} 
-                    alt={selectedProject.title} 
-                    className="w-full h-full object-cover cursor-zoom-in hover:opacity-90"
-                    onClick={() => setLightboxImg(selectedProject.modal_image || selectedProject.image)}
-                  />
                 )}
+
+                {/* Close Button (Right side, top) */}
                 <button
                   onClick={() => setSelectedProject(null)}
-                  className="absolute top-4 right-4 p-2 rounded-xl bg-slate-950/65 text-white hover:bg-slate-950/80 transition-colors border border-white/10 z-10 cursor-pointer"
+                  className="absolute top-2 right-2 md:top-3 md:right-3 p-1.5 rounded-lg bg-slate-900/60 text-white hover:bg-slate-900/85 transition-colors border border-white/10 z-10 cursor-pointer"
                   aria-label="Close details"
                 >
-                  <X size={18} />
+                  <X size={16} />
                 </button>
+
+                {/* Image Indicator / Dots (Below the image, with proper spacing) */}
+                {selectedProject.image_urls && selectedProject.image_urls.length > 1 && (
+                  <div className="flex gap-1.5 mt-3 justify-center z-10">
+                    {selectedProject.image_urls.map((_, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setActiveImgIndex(idx)}
+                        className={`w-1.5 h-1.5 rounded-full transition-all cursor-pointer ${
+                          idx === activeImgIndex ? "bg-white scale-125" : "bg-white/40"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Modal Content Scroll Area */}
@@ -493,7 +514,7 @@ export default function Projects() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setLightboxImg(null)}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md cursor-zoom-out"
+            className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md cursor-zoom-out"
           >
             <button
               onClick={() => setLightboxImg(null)}
