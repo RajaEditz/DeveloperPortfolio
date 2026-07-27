@@ -162,7 +162,7 @@ export default function Projects() {
             title: p.title,
             description: p.description,
             technologies: typeof p.technologies === "string" ? p.technologies.split(",").map((s) => s.trim()) : p.technologies || [],
-            features: typeof p.description === "string" ? p.description.split("\n").filter(Boolean) : [],
+            features: Array.isArray(p.features) ? p.features : (typeof p.features === "string" ? p.features.split("\n").filter(Boolean) : (typeof p.description === "string" ? p.description.split("\n").filter(Boolean) : [])),
             tags: p.featured ? ["React", "Full Stack", "AI"] : ["React", "Full Stack"],
             githubLink: p.github_url || "#",
             liveLink: p.live_url || "#",

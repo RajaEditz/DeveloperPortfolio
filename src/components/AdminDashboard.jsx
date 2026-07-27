@@ -95,6 +95,7 @@ export default function AdminDashboard({ onLogout }) {
     featured: false,
     image_url: "",
     image_urls: [],
+    features: "",
   });
 
   const [experienceFields, setExperienceFields] = useState({
@@ -246,6 +247,7 @@ export default function AdminDashboard({ onLogout }) {
         featured: false,
         image_url: "",
         image_urls: [],
+        features: "",
       });
     } else if (type === "experience") {
       setExperienceFields({
@@ -302,6 +304,7 @@ export default function AdminDashboard({ onLogout }) {
         featured: item.featured || false,
         image_url: item.image_url || "",
         image_urls: item.image_urls || (item.image_url ? [item.image_url] : []),
+        features: Array.isArray(item.features) ? item.features.join("\n") : (item.features || ""),
       });
     } else if (type === "experience") {
       setExperienceFields({
@@ -357,6 +360,11 @@ export default function AdminDashboard({ onLogout }) {
         formData.append("live_url", projectFields.live_url);
         formData.append("featured", projectFields.featured);
         formData.append("image_urls", JSON.stringify(projectFields.image_urls || []));
+
+        const featuresArray = typeof projectFields.features === "string"
+          ? projectFields.features.split("\n").map((f) => f.trim()).filter(Boolean)
+          : (projectFields.features || []);
+        formData.append("features", JSON.stringify(featuresArray));
 
         if (projectImages && projectImages.length > 0) {
           projectImages.forEach((img) => {
@@ -1301,6 +1309,16 @@ export default function AdminDashboard({ onLogout }) {
                         required
                         value={projectFields.description}
                         onChange={(e) => setProjectFields({ ...projectFields, description: e.target.value })}
+                        className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500/50 bg-slate-50/50 text-slate-805"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-505">Key Features (one per line)</label>
+                      <textarea
+                        rows={3}
+                        value={projectFields.features}
+                        onChange={(e) => setProjectFields({ ...projectFields, features: e.target.value })}
+                        placeholder="Enter key features, each on a new line"
                         className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500/50 bg-slate-50/50 text-slate-805"
                       />
                     </div>

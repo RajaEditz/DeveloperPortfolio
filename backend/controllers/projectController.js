@@ -40,7 +40,7 @@ const getProjectById = async (req, res) => {
 // @access  Private
 const createProject = async (req, res) => {
   try {
-    const { title, description, technologies, github_url, live_url, featured } =
+    const { title, description, technologies, github_url, live_url, featured, features } =
       req.body;
 
     let imageUrls = [];
@@ -49,6 +49,15 @@ const createProject = async (req, res) => {
         imageUrls = typeof req.body.image_urls === "string" ? JSON.parse(req.body.image_urls) : req.body.image_urls;
       } catch (e) {
         console.error("Error parsing image_urls:", e);
+      }
+    }
+
+    let parsedFeatures = [];
+    if (features) {
+      try {
+        parsedFeatures = typeof features === "string" ? JSON.parse(features) : features;
+      } catch (e) {
+        console.error("Error parsing features:", e);
       }
     }
 
@@ -67,8 +76,8 @@ const createProject = async (req, res) => {
     const result = await pool.query(
       `
       INSERT INTO projects 
-      (title, description, technologies, github_url, live_url, image_url, image_urls, featured, created_at, updated_at) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW()) 
+      (title, description, technologies, github_url, live_url, image_url, image_urls, featured, features, created_at, updated_at) 
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW()) 
       RETURNING *
       `,
       [
@@ -80,6 +89,7 @@ const createProject = async (req, res) => {
         imageUrl,
         imageUrls,
         featured === "true" || featured === true,
+        parsedFeatures,
       ]
     );
 
@@ -96,7 +106,7 @@ const createProject = async (req, res) => {
 const updateProject = async (req, res) => {
   const { id } = req.params;
   try {
-    const { title, description, technologies, github_url, live_url, featured } =
+    const { title, description, technologies, github_url, live_url, featured, features } =
       req.body;
 
     // Check if project exists
@@ -119,6 +129,17 @@ const updateProject = async (req, res) => {
       imageUrls = checkProject.rows[0].image_urls || (checkProject.rows[0].image_url ? [checkProject.rows[0].image_url] : []);
     }
 
+    let parsedFeatures = [];
+    if (features) {
+      try {
+        parsedFeatures = typeof features === "string" ? JSON.parse(features) : features;
+      } catch (e) {
+        console.error("Error parsing features:", e);
+      }
+    } else {
+      parsedFeatures = checkProject.rows[0].features || [];
+    }
+
     // If new files are uploaded
     if (req.files && req.files.length > 0) {
       const uploadPromises = req.files.map((file) =>
@@ -134,8 +155,8 @@ const updateProject = async (req, res) => {
     const result = await pool.query(
       `
       UPDATE projects 
-      SET title = $1, description = $2, technologies = $3, github_url = $4, live_url = $5, image_url = $6, image_urls = $7, featured = $8, updated_at = NOW() 
-      WHERE id = $9 
+      SET title = $1, description = $2, technologies = $3, github_url = $4, live_url = $5, image_url = $6, image_urls = $7, featured = $8, features = $9, updated_at = NOW() 
+      WHERE id = $10 
       RETURNING *
       `,
       [
@@ -147,6 +168,7 @@ const updateProject = async (req, res) => {
         imageUrl,
         imageUrls,
         featured === "true" || featured === true,
+        parsedFeatures,
         id,
       ]
     );
