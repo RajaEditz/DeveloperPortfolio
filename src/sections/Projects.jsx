@@ -354,7 +354,7 @@ export default function Projects() {
               className="bg-white dark:bg-slate-900 border border-slate-300/30 dark:border-slate-800/80 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden shadow-2xl relative flex flex-col text-left"
             >
               {/* Modal Image Header with Gallery Slider */}
-              <div className="h-56 w-full relative overflow-hidden bg-slate-950">
+              <div className="aspect-video w-full relative overflow-hidden bg-slate-950">
                 {selectedProject.image_urls && selectedProject.image_urls.length > 0 ? (
                   <>
                     <img 
@@ -408,20 +408,21 @@ export default function Projects() {
                 )}
                 <button
                   onClick={() => setSelectedProject(null)}
-                  className="absolute top-4 right-4 p-2 rounded-xl bg-slate-950/65 text-white hover:bg-slate-950/80 transition-colors border border-white/10 z-10"
+                  className="absolute top-4 right-4 p-2 rounded-xl bg-slate-950/65 text-white hover:bg-slate-950/80 transition-colors border border-white/10 z-10 cursor-pointer"
                   aria-label="Close details"
                 >
                   <X size={18} />
                 </button>
-                <div className="absolute bottom-4 left-4 z-10">
-                  <h3 className="text-lg md:text-xl font-extrabold text-white bg-slate-950/65 px-4 py-1.5 rounded-xl border border-white/15 backdrop-blur-md">
-                    {selectedProject.title}
-                  </h3>
-                </div>
               </div>
 
               {/* Modal Content Scroll Area */}
               <div className="p-6 overflow-y-auto space-y-5 flex-1">
+                <div className="border-b border-slate-200/50 dark:border-slate-800/50 pb-3">
+                  <h3 className="text-lg md:text-xl font-extrabold text-slate-850 dark:text-white leading-snug">
+                    {selectedProject.title}
+                  </h3>
+                </div>
+
                 <div>
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1 flex items-center gap-1.5">
                     <Code size={14} className="text-blue-500" /> Project Description
