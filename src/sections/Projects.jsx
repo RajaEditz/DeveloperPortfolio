@@ -352,6 +352,7 @@ export default function Projects() {
               exit={{ scale: 0.95, y: 20 }}
               transition={{ type: "spring", stiffness: 280, damping: 25 }}
               className="bg-white dark:bg-slate-900 border border-slate-300/30 dark:border-slate-800/80 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden shadow-2xl relative flex flex-col text-left"
+              onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Image Header with Gallery Slider */}
               <div className="aspect-video w-full relative overflow-hidden bg-slate-950">

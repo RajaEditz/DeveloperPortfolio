@@ -18,6 +18,7 @@ import {
   Loader2,
   ChevronRight,
   Upload,
+  Menu,
 } from "lucide-react";
 import { apiRequest, API_BASE } from "../utils/api";
 
@@ -84,6 +85,7 @@ export default function AdminDashboard({ onLogout }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState(""); // "project", "experience", "certificate", "skill", "publication"
   const [editItem, setEditItem] = useState(null); // Item being edited (null for "Add")
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Form Fields States
   const [projectFields, setProjectFields] = useState({
@@ -1133,20 +1135,28 @@ export default function AdminDashboard({ onLogout }) {
   const adminName = localStorage.getItem("admin_name") || "Administrator";
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex font-sans select-none animate-fade-in">
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex font-sans select-none animate-fade-in relative overflow-x-hidden">
       {/* Sidebar Navigation */}
-      <aside className="w-64 border-r border-slate-200 bg-white flex flex-col justify-between shrink-0 select-none shadow-sm">
+      <aside className={`w-64 border-r border-slate-200 bg-white flex flex-col justify-between shrink-0 select-none shadow-sm fixed lg:static inset-y-0 left-0 z-40 transition-transform duration-300 transform lg:transform-none ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
         <div className="p-6">
-          <div className="flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-xs shadow-sm">
-              AD
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-xs shadow-sm">
+                AD
+              </div>
+              <span className="font-extrabold text-sm tracking-tight text-slate-850">Dashboard</span>
             </div>
-            <span className="font-extrabold text-sm tracking-tight text-slate-850">Dashboard</span>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="lg:hidden p-1.5 rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-800 transition-colors cursor-pointer"
+            >
+              <X size={16} />
+            </button>
           </div>
 
           <nav className="space-y-1 text-xs">
             <button
-              onClick={() => setActiveTab("overview")}
+              onClick={() => { setActiveTab("overview"); setSidebarOpen(false); }}
               className={`w-full px-4 py-3 rounded-xl flex items-center gap-3 font-semibold transition-all cursor-pointer ${
                 activeTab === "overview"
                   ? "bg-blue-50/70 text-blue-650 font-bold"
@@ -1156,7 +1166,7 @@ export default function AdminDashboard({ onLogout }) {
               <LayoutDashboard size={16} /> Overview
             </button>
             <button
-              onClick={() => setActiveTab("projects")}
+              onClick={() => { setActiveTab("projects"); setSidebarOpen(false); }}
               className={`w-full px-4 py-3 rounded-xl flex items-center gap-3 font-semibold transition-all cursor-pointer ${
                 activeTab === "projects"
                   ? "bg-blue-50/70 text-blue-655 font-bold"
@@ -1166,7 +1176,7 @@ export default function AdminDashboard({ onLogout }) {
               <FolderGit2 size={16} /> Projects
             </button>
             <button
-              onClick={() => setActiveTab("experiences")}
+              onClick={() => { setActiveTab("experiences"); setSidebarOpen(false); }}
               className={`w-full px-4 py-3 rounded-xl flex items-center gap-3 font-semibold transition-all cursor-pointer ${
                 activeTab === "experiences"
                   ? "bg-blue-50/70 text-blue-655 font-bold"
@@ -1176,7 +1186,7 @@ export default function AdminDashboard({ onLogout }) {
               <Briefcase size={16} /> Experiences
             </button>
             <button
-              onClick={() => setActiveTab("certificates")}
+              onClick={() => { setActiveTab("certificates"); setSidebarOpen(false); }}
               className={`w-full px-4 py-3 rounded-xl flex items-center gap-3 font-semibold transition-all cursor-pointer ${
                 activeTab === "certificates"
                   ? "bg-blue-50/70 text-blue-655 font-bold"
@@ -1186,7 +1196,7 @@ export default function AdminDashboard({ onLogout }) {
               <Award size={16} /> Certificates
             </button>
             <button
-              onClick={() => setActiveTab("skills")}
+              onClick={() => { setActiveTab("skills"); setSidebarOpen(false); }}
               className={`w-full px-4 py-3 rounded-xl flex items-center gap-3 font-semibold transition-all cursor-pointer ${
                 activeTab === "skills"
                   ? "bg-blue-50/70 text-blue-655 font-bold"
@@ -1196,7 +1206,7 @@ export default function AdminDashboard({ onLogout }) {
               <Settings size={16} /> Skills
             </button>
             <button
-              onClick={() => setActiveTab("publications")}
+              onClick={() => { setActiveTab("publications"); setSidebarOpen(false); }}
               className={`w-full px-4 py-3 rounded-xl flex items-center gap-3 font-semibold transition-all cursor-pointer ${
                 activeTab === "publications"
                   ? "bg-blue-50/70 text-blue-655 font-bold"
@@ -1206,7 +1216,7 @@ export default function AdminDashboard({ onLogout }) {
               <BookOpen size={16} /> Publications
             </button>
             <button
-              onClick={() => setActiveTab("contact")}
+              onClick={() => { setActiveTab("contact"); setSidebarOpen(false); }}
               className={`w-full px-4 py-3 rounded-xl flex items-center gap-3 font-semibold transition-all cursor-pointer ${
                 activeTab === "contact"
                   ? "bg-blue-50/70 text-blue-655 font-bold"
@@ -1216,7 +1226,7 @@ export default function AdminDashboard({ onLogout }) {
               <UserCheck size={16} /> Contact &amp; Resume
             </button>
             <button
-              onClick={() => setActiveTab("profile-photo")}
+              onClick={() => { setActiveTab("profile-photo"); setSidebarOpen(false); }}
               className={`w-full px-4 py-3 rounded-xl flex items-center gap-3 font-semibold transition-all cursor-pointer ${
                 activeTab === "profile-photo"
                   ? "bg-blue-50/70 text-blue-655 font-bold"
@@ -1226,7 +1236,7 @@ export default function AdminDashboard({ onLogout }) {
               <span className="text-sm">👤</span> Profile Photo
             </button>
             <button
-              onClick={() => setActiveTab("messages")}
+              onClick={() => { setActiveTab("messages"); setSidebarOpen(false); }}
               className={`w-full px-4 py-3 rounded-xl flex items-center gap-3 font-semibold transition-all cursor-pointer ${
                 activeTab === "messages"
                   ? "bg-blue-50/70 text-blue-655 font-bold"
@@ -1258,9 +1268,33 @@ export default function AdminDashboard({ onLogout }) {
         </div>
       </aside>
 
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-30 bg-slate-950/45 backdrop-blur-xs lg:hidden cursor-pointer"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Main Content Workspace */}
-      <main className="flex-1 bg-slate-50 p-8 overflow-y-auto max-h-screen">
-        <header className="mb-8 flex justify-between items-center">
+      <main className="flex-1 bg-slate-50 p-4 md:p-8 overflow-y-auto max-h-screen">
+        {/* Mobile Header Bar */}
+        <div className="lg:hidden flex items-center justify-between bg-white border border-slate-200/80 p-4 sticky top-0 z-30 mb-6 rounded-2xl shadow-sm">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer"
+            >
+              <Menu size={20} />
+            </button>
+            <span className="font-extrabold text-xs uppercase tracking-wider text-slate-705">{activeTab} Panel</span>
+          </div>
+          <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 text-[10px] font-bold font-mono">
+            {adminName.substring(0, 2).toUpperCase()}
+          </div>
+        </div>
+
+        <header className="mb-8 hidden lg:flex justify-between items-center">
           <h2 className="text-xl font-black capitalize text-slate-850">
             {activeTab} Panel
           </h2>
