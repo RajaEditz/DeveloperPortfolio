@@ -62,8 +62,15 @@ const createProject = async (req, res) => {
     }
 
     // Upload to Cloudinary if files exist in request
-    if (req.files && req.files.length > 0) {
-      const uploadPromises = req.files.map((file) =>
+    let thumbnailUrl = "";
+    if (req.files && req.files["thumbnail"] && req.files["thumbnail"].length > 0) {
+      const thumbnailFile = req.files["thumbnail"][0];
+      const uploadResult = await uploadToCloudinary(thumbnailFile.buffer, "projects");
+      thumbnailUrl = uploadResult.secure_url;
+    }
+
+    if (req.files && req.files["images"] && req.files["images"].length > 0) {
+      const uploadPromises = req.files["images"].map((file) =>
         uploadToCloudinary(file.buffer, "projects")
       );
       const uploadResults = await Promise.all(uploadPromises);
@@ -76,8 +83,8 @@ const createProject = async (req, res) => {
     const result = await pool.query(
       `
       INSERT INTO projects 
-      (title, description, technologies, github_url, live_url, image_url, image_urls, featured, features, created_at, updated_at) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW()) 
+      (title, description, technologies, github_url, live_url, image_url, image_urls, featured, features, thumbnail_url, created_at, updated_at) 
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW()) 
       RETURNING *
       `,
       [
@@ -90,6 +97,7 @@ const createProject = async (req, res) => {
         imageUrls,
         featured === "true" || featured === true,
         parsedFeatures,
+        thumbnailUrl,
       ]
     );
 
@@ -140,9 +148,18 @@ const updateProject = async (req, res) => {
       parsedFeatures = checkProject.rows[0].features || [];
     }
 
-    // If new files are uploaded
-    if (req.files && req.files.length > 0) {
-      const uploadPromises = req.files.map((file) =>
+    let thumbnailUrl = req.body.thumbnail_url;
+    if (req.files && req.files["thumbnail"] && req.files["thumbnail"].length > 0) {
+      const thumbnailFile = req.files["thumbnail"][0];
+      const uploadResult = await uploadToCloudinary(thumbnailFile.buffer, "projects");
+      thumbnailUrl = uploadResult.secure_url;
+    } else if (thumbnailUrl === undefined || thumbnailUrl === null) {
+      thumbnailUrl = checkProject.rows[0].thumbnail_url || "";
+    }
+
+    // If new gallery files are uploaded
+    if (req.files && req.files["images"] && req.files["images"].length > 0) {
+      const uploadPromises = req.files["images"].map((file) =>
         uploadToCloudinary(file.buffer, "projects")
       );
       const uploadResults = await Promise.all(uploadPromises);
@@ -155,8 +172,8 @@ const updateProject = async (req, res) => {
     const result = await pool.query(
       `
       UPDATE projects 
-      SET title = $1, description = $2, technologies = $3, github_url = $4, live_url = $5, image_url = $6, image_urls = $7, featured = $8, features = $9, updated_at = NOW() 
-      WHERE id = $10 
+      SET title = $1, description = $2, technologies = $3, github_url = $4, live_url = $5, image_url = $6, image_urls = $7, featured = $8, features = $9, thumbnail_url = $10, updated_at = NOW() 
+      WHERE id = $11 
       RETURNING *
       `,
       [
@@ -169,6 +186,7 @@ const updateProject = async (req, res) => {
         imageUrls,
         featured === "true" || featured === true,
         parsedFeatures,
+        thumbnailUrl,
         id,
       ]
     );

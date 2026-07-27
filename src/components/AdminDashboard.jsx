@@ -96,6 +96,7 @@ export default function AdminDashboard({ onLogout }) {
     image_url: "",
     image_urls: [],
     features: "",
+    thumbnail_url: "",
   });
 
   const [experienceFields, setExperienceFields] = useState({
@@ -145,6 +146,7 @@ export default function AdminDashboard({ onLogout }) {
 
   // Upload File States
   const [projectImages, setProjectImages] = useState([]);
+  const [projectThumbnail, setProjectThumbnail] = useState(null);
   const [certificateImages, setCertificateImages] = useState([]);
   const [resumeFile, setResumeFile] = useState(null);
   // Preview URL for selected CV image
@@ -248,7 +250,9 @@ export default function AdminDashboard({ onLogout }) {
         image_url: "",
         image_urls: [],
         features: "",
+        thumbnail_url: "",
       });
+      setProjectThumbnail(null);
     } else if (type === "experience") {
       setExperienceFields({
         role: "",
@@ -292,6 +296,7 @@ export default function AdminDashboard({ onLogout }) {
     setModalType(type);
     setEditItem(item);
     setProjectImages([]);
+    setProjectThumbnail(null);
     setCertificateImages([]);
 
     if (type === "project") {
@@ -305,6 +310,7 @@ export default function AdminDashboard({ onLogout }) {
         image_url: item.image_url || "",
         image_urls: item.image_urls || (item.image_url ? [item.image_url] : []),
         features: Array.isArray(item.features) ? item.features.join("\n") : (item.features || ""),
+        thumbnail_url: item.thumbnail_url || "",
       });
     } else if (type === "experience") {
       setExperienceFields({
@@ -365,6 +371,11 @@ export default function AdminDashboard({ onLogout }) {
           ? projectFields.features.split("\n").map((f) => f.trim()).filter(Boolean)
           : (projectFields.features || []);
         formData.append("features", JSON.stringify(featuresArray));
+
+        formData.append("thumbnail_url", projectFields.thumbnail_url || "");
+        if (projectThumbnail) {
+          formData.append("thumbnail", projectThumbnail);
+        }
 
         if (projectImages && projectImages.length > 0) {
           projectImages.forEach((img) => {
@@ -1362,6 +1373,67 @@ export default function AdminDashboard({ onLogout }) {
                       />
                       <label htmlFor="featured" className="text-[10px] font-bold uppercase tracking-wider text-slate-505">Featured Project</label>
                     </div>
+                    {/* Project Thumbnail Upload (16:9 ratio) */}
+                    <div className="space-y-2.5">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Project Thumbnail (16:9 ratio)</label>
+                      
+                      {/* Existing Thumbnail Preview */}
+                      {projectFields.thumbnail_url && (
+                        <div className="space-y-1.5">
+                          <span className="text-[9px] font-semibold text-slate-455 uppercase">Current Thumbnail:</span>
+                          <div className="relative aspect-video max-w-[200px] rounded-lg overflow-hidden border border-slate-200 group">
+                            <img src={projectFields.thumbnail_url} alt="Project Thumbnail" className="w-full h-full object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setProjectFields({ ...projectFields, thumbnail_url: "" });
+                              }}
+                              className="absolute top-1 right-1 p-1 bg-red-500/80 hover:bg-red-600 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                            >
+                              <X size={10} />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Selected Thumbnail File Preview */}
+                      {projectThumbnail && (
+                        <div className="space-y-1.5">
+                          <span className="text-[9px] font-semibold text-blue-500 uppercase">New Selected Thumbnail:</span>
+                          <div className="relative aspect-video max-w-[200px] rounded-lg overflow-hidden border border-blue-200 group">
+                            <img src={URL.createObjectURL(projectThumbnail)} alt="New Thumbnail Preview" className="w-full h-full object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setProjectThumbnail(null);
+                              }}
+                              className="absolute top-1 right-1 p-1 bg-slate-800/80 hover:bg-slate-905 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                            >
+                              <X size={10} />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* File Select Label */}
+                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-blue-400 p-4 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                        <Upload size={20} className="text-slate-400 mb-1" />
+                        <span className="text-[11px] font-semibold text-slate-650">Select Project Thumbnail</span>
+                        <span className="text-[9px] text-slate-455 mt-0.5">JPEG, PNG, WEBP (Single image, 16:9 ratio recommended)</span>
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const files = e.target.files;
+                            if (files && files.length > 0) {
+                              setProjectThumbnail(files[0]);
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+
                     <div className="space-y-2.5">
                       <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Project Photos (Upload 10+ photos)</label>
                       

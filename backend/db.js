@@ -110,6 +110,8 @@ pool.connect()
         ADD COLUMN IF NOT EXISTS image_urls TEXT[];
         ALTER TABLE projects 
         ADD COLUMN IF NOT EXISTS features TEXT[];
+        ALTER TABLE projects 
+        ADD COLUMN IF NOT EXISTS thumbnail_url TEXT;
         ALTER TABLE certificates 
         ADD COLUMN IF NOT EXISTS image_urls TEXT[];
       `);

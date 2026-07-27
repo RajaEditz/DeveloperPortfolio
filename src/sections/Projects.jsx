@@ -147,6 +147,7 @@ export default function Projects() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [projectList, setProjectList] = useState(projects);
   const [activeImgIndex, setActiveImgIndex] = useState(0);
+  const [lightboxImg, setLightboxImg] = useState(null);
 
   useEffect(() => {
     setActiveImgIndex(0);
@@ -166,7 +167,8 @@ export default function Projects() {
             tags: p.featured ? ["React", "Full Stack", "AI"] : ["React", "Full Stack"],
             githubLink: p.github_url || "#",
             liveLink: p.live_url || "#",
-            image: p.image_url || "https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=600&auto=format&fit=crop",
+            image: p.thumbnail_url || p.image_url || "https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=600&auto=format&fit=crop",
+            modal_image: p.image_url || "https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=600&auto=format&fit=crop",
             image_urls: p.image_urls || (p.image_url ? [p.image_url] : ["https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=600&auto=format&fit=crop"]),
           }));
           setProjectList(mapped);
@@ -358,7 +360,8 @@ export default function Projects() {
                     <img 
                       src={selectedProject.image_urls[activeImgIndex]} 
                       alt={`${selectedProject.title} ${activeImgIndex + 1}`} 
-                      className="w-full h-full object-cover transition-all duration-300"
+                      className="w-full h-full object-cover transition-all duration-300 cursor-zoom-in hover:opacity-90"
+                      onClick={() => setLightboxImg(selectedProject.image_urls[activeImgIndex])}
                     />
                     
                     {/* Navigation Arrows */}
@@ -397,9 +400,10 @@ export default function Projects() {
                   </>
                 ) : (
                   <img 
-                    src={selectedProject.image} 
+                    src={selectedProject.modal_image || selectedProject.image} 
                     alt={selectedProject.title} 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover cursor-zoom-in hover:opacity-90"
+                    onClick={() => setLightboxImg(selectedProject.modal_image || selectedProject.image)}
                   />
                 )}
                 <button
@@ -475,6 +479,36 @@ export default function Projects() {
                 </a>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Fullscreen Lightbox Popup Overlay */}
+      <AnimatePresence>
+        {lightboxImg && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setLightboxImg(null)}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md cursor-zoom-out"
+          >
+            <button
+              onClick={() => setLightboxImg(null)}
+              className="absolute top-6 right-6 p-2.5 rounded-full bg-slate-900/80 text-white hover:bg-slate-800 transition-colors border border-white/10 cursor-pointer"
+              aria-label="Close image popup"
+            >
+              <X size={20} />
+            </button>
+            <motion.img
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              src={lightboxImg}
+              alt="Project view fullscreen"
+              className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
           </motion.div>
         )}
       </AnimatePresence>
